@@ -6,7 +6,7 @@ int main(int argc, char** argv) {
   s_options_t flags = {0};
 
   parsing_args(argc, argv, &flags);
-  printf("flags.A = %d\n", flags.A);
+  /*printf("flags.A = %d\n", flags.A);
   printf("flags.b = %d\n", flags.b);
   printf("flags.e = %d\n", flags.e);
   printf("flags.E = %d\n", flags.E);
@@ -25,23 +25,9 @@ int main(int argc, char** argv) {
   printf("flags.show_tabs = %d\n", flags.show_tabs);
   printf("flags.show_nonprinting = %d\n", flags.show_nonprinting);
   printf("flags.help = %d\n", flags.help);
-  printf("flags.version = %d\n", flags.version);
+  printf("flags.version = %d\n", flags.version);*/
 
-  for (int i = 0; i < argc; ++i) {
-    if (argv[i][0] != '-') {
-      print_line(flags, argv[i]);
-    }
-  }
+  output(argc, argv, &flags);
 
-  /*if (argc == 1) {
-    no_flags();
-  } else if (argc == 2) {
-    print_file(argv[1]);
-  } else if (argv[1][0] != '-') {
-    for (size_t i = 1; i < argc; ++i) {
-      print_file(argv[i]);
-    }
-  } else {
-  }*/
   return 0;
 }

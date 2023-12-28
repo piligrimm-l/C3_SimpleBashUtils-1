@@ -7,7 +7,9 @@
 
 void no_flags() {
   char ch;
-  while ((ch = getchar()) != EOF) continue;
+  while ((ch = getchar()) != EOF) {
+    putchar(ch);
+  }
 }
 
 void print_file(char* path) {
@@ -25,8 +27,10 @@ void print_file(char* path) {
     if (dp != NULL) {
       printf("%s: %s: Is a directory", PROGRAM_NAME, path);
       closedir(dp);
+      exit(EXIT_FAILURE);
     } else {
       printf("%s: %s: No such file or directory", PROGRAM_NAME, path);
+      exit(EXIT_FAILURE);
     }
   }
 }
@@ -42,19 +46,22 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
             flags->E = 1;
             flags->T = 1;
             flags->show_all = 1;
+            flags->show_nonprinting = 1;
+            flags->show_ends = 1;
+            flags->show_tabs = 1;
             break;
           case 'b':
-            if (flags->n == 1) {
-              flags->n = 0;
-              flags->number_nonblank = 1;
-            }
+            flags->n = 0;
+            flags->number = 0;
             flags->b = 1;
+            flags->number_nonblank = 1;
             break;
           case 'e':
             flags->e = 1;
             flags->v = 1;
             flags->E = 1;
             flags->show_ends = 1;
+            flags->show_nonprinting = 1;
             break;
           case 'E':
             flags->E = 1;
@@ -75,6 +82,7 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
             flags->T = 1;
             flags->v = 1;
             flags->show_tabs = 1;
+            flags->show_nonprinting = 1;
             break;
           case 'T':
             flags->T = 1;
@@ -88,7 +96,9 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
             flags->show_nonprinting = 1;
             break;
           case '-':
-            flags->dash = 1;
+            if (strlen(argv[i]) == 1) {
+              flags->dash = 1;
+            }
             break;
           default:
             printf("%s: illegal option -- %c\n", PROGRAM_NAME, argv[i][j]);
@@ -101,12 +111,16 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
       if (!strcmp("--show-all", argv[i])) {
         flags->A = 1;
         flags->show_all = 1;
+        flags->show_nonprinting = 1;
+        flags->show_ends = 1;
+        flags->show_tabs = 1;
         flags->v = 1;
         flags->E = 1;
         flags->T = 1;
       }
       if (!strcmp("--number-nonblank", argv[i])) {
         flags->n = 0;
+        flags->number = 0;
         flags->b = 1;
         flags->number_nonblank = 1;
       }
@@ -140,19 +154,56 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
   }
 }
 
-void print_line(const s_options_t flags, char* path) {
-  FILE* fp = fopen(path, "rt");
-
-  if (fp != NULL) {
-    if (argc == 1 || (argc == 2 && flags.dash == 1)) {
-      no_flags();
-    } else if (argc == 2) {
-      print_file(argv[1]);
-    } else if (argv[1][0] != '-') {
-      for (size_t i = 1; i < argc; ++i) {
+void output(int argc, char** argv, s_options_t* flags) {
+  if (argc == 1 || (argc == 2 && argv[1][0] == '-' && strlen(argv[1]) == 1)) {
+    no_flags();
+  } else if (argc >= 2 && argv[1][0] != '-') {
+    for (int i = 1; i < argc; ++i) {
+      if (argv[i][0] == '-' && strlen(argv[i]) == 1 && flags->dash) {
+        no_flags();
+        flags->dash = 0;
+      } else {
         print_file(argv[i]);
       }
+    }
+  } else {
+    for (int i = 1; i != argc; ++i) {
+      if (argv[i][0] != '-') {
+        print_lines(flags, argv[i]);
+      }
+    }
+  }
+}
+
+void print_lines(s_options_t* flags, char* path) {
+  FILE* fp = fopen(path, "rt");
+  DIR* dp = opendir(path);
+
+  if (fp != NULL && dp == NULL) {
+    int ch = fgetc(fp);
+    while (ch != EOF) {
+      while (ch != '\n') {
+        if (ch < 32 && flags->v) {
+          ch = ch + 64;
+          putc(ch, stdout);
+          ch = fgetc(fp);
+        } else {
+          putc(ch, stdout);
+          ch = fgetc(fp);
+        }
+      }
+      putc(ch, stdout);
+      ch = fgetc(fp);
+    }
+    fclose(fp);
+  } else {
+    if (dp != NULL) {
+      printf("%s: %s: Is a directory", PROGRAM_NAME, path);
+      closedir(dp);
+      exit(EXIT_FAILURE);
     } else {
+      printf("%s: %s: No such file or directory", PROGRAM_NAME, path);
+      exit(EXIT_FAILURE);
     }
   }
 }
