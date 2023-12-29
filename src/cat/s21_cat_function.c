@@ -182,17 +182,32 @@ void print_lines(s_options_t* flags, char* path) {
   if (fp != NULL && dp == NULL) {
     int ch = fgetc(fp);
     while (ch != EOF) {
-      while (ch != '\n') {
-        if (ch < 32 && flags->v) {
-          ch = ch + 64;
-          putc(ch, stdout);
-          ch = fgetc(fp);
-        } else {
-          putc(ch, stdout);
+      while (ch != '\n' && ch != EOF) {
+        if (ch == '\t' && (flags->t || flags->T || flags->show_tabs)) {
+          putc('^', stdout);
+          putc('I', stdout); 
           ch = fgetc(fp);
         }
+        if (flags->v || flags->e || flags->t || flags->show_nonprinting || flags->A) {
+          if (ch < 32 && ch != '\t') {
+            ch = ch + 64;
+            putc('^', stdout);
+          } else if (ch == 127) {
+            putc('^', stdout);
+            putc('?', stdout);
+          } else if (ch > 127 && ch < 160) {
+            putc('M', stdout);
+            putc('-', stdout);
+            putc('^', stdout);
+            ch = ch - 64; 
+          }
+        }
+        putc(ch, stdout);
+        ch = fgetc(fp);
       }
-      putc(ch, stdout);
+      if (ch != EOF) {
+        putc(ch, stdout);
+      }
       ch = fgetc(fp);
     }
     fclose(fp);
