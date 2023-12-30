@@ -157,6 +157,12 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
 void output(int argc, char** argv, s_options_t* flags) {
   if (argc == 1 || (argc == 2 && argv[1][0] == '-' && strlen(argv[1]) == 1)) {
     no_flags();
+  } else if (flags->version) {
+    printf("%s - program version 0.01 from 01/18/2024", PROGRAM_NAME);
+    exit(EXIT_SUCCESS);
+  } else if (flags->help) {
+    print_file("tests/help_s21_cat.txt");
+    exit(EXIT_SUCCESS);
   } else if (argc >= 2 && argv[1][0] != '-') {
     for (int i = 1; i < argc; ++i) {
       if (argv[i][0] == '-' && strlen(argv[i]) == 1 && flags->dash) {
@@ -178,17 +184,26 @@ void output(int argc, char** argv, s_options_t* flags) {
 void print_lines(s_options_t* flags, char* path) {
   FILE* fp = fopen(path, "rt");
   DIR* dp = opendir(path);
+  char prev = '\0';
+  int empty_line_counter = 0;
 
   if (fp != NULL && dp == NULL) {
     int ch = fgetc(fp);
+    if (ch == '\n') {
+      empty_line_counter = 1;
+    }
     while (ch != EOF) {
       while (ch != '\n' && ch != EOF) {
-        if (ch == '\t' && (flags->t || flags->T || flags->show_tabs)) {
+        if (ch == '\t' && (flags->t || flags->T || flags->show_tabs ||
+                           flags->A || flags->show_all)) {
           putc('^', stdout);
-          putc('I', stdout); 
+          putc('I', stdout);
+          prev = ch;
           ch = fgetc(fp);
+          continue;
         }
-        if (flags->v || flags->e || flags->t || flags->show_nonprinting || flags->A) {
+        if (flags->v || flags->e || flags->t || flags->show_nonprinting ||
+            flags->A || flags->show_all) {
           if (ch < 32 && ch != '\t') {
             ch = ch + 64;
             putc('^', stdout);
@@ -199,16 +214,40 @@ void print_lines(s_options_t* flags, char* path) {
             putc('M', stdout);
             putc('-', stdout);
             putc('^', stdout);
-            ch = ch - 64; 
+            ch = ch - 64;
           }
         }
         putc(ch, stdout);
+        prev = ch;
         ch = fgetc(fp);
       }
-      if (ch != EOF) {
+      if (ch == '\n' && (flags->s || flags->squeeze_blank) && prev == '\n') {
+        if (!empty_line_counter) {
+          if (ch == '\n' && (flags->e || flags->E || flags->show_ends ||
+                             flags->A || flags->show_all)) {
+            putc('$', stdout);
+          }
+          putc(ch, stdout);
+          ++empty_line_counter;
+        }
+        prev = ch;
+        ch = fgetc(fp);
+        if (ch != '\n') {
+          empty_line_counter = 0;
+        }
+        continue;
+      } else if (ch != EOF) {
+        if (ch == '\n' && (flags->e || flags->E || flags->show_ends ||
+                           flags->A || flags->show_all)) {
+          putc('$', stdout);
+        }
         putc(ch, stdout);
       }
+      prev = ch;
       ch = fgetc(fp);
+      if (ch != '\n') {
+        empty_line_counter = 0;
+      }
     }
     fclose(fp);
   } else {
@@ -221,4 +260,27 @@ void print_lines(s_options_t* flags, char* path) {
       exit(EXIT_FAILURE);
     }
   }
+}
+
+void print_flags(s_options_t flags) {
+  printf("flags.A = %d\n", flags.A);
+  printf("flags.b = %d\n", flags.b);
+  printf("flags.e = %d\n", flags.e);
+  printf("flags.E = %d\n", flags.E);
+  printf("flags.n = %d\n", flags.n);
+  printf("flags.s = %d\n", flags.s);
+  printf("flags.t = %d\n", flags.t);
+  printf("flags.T = %d\n", flags.T);
+  printf("flags.u = %d\n", flags.u);
+  printf("flags.v = %d\n", flags.v);
+  printf("flags.dash = %d\n", flags.dash);
+  printf("flags.show_all = %d\n", flags.show_all);
+  printf("flags.number_nonblank = %d\n", flags.number_nonblank);
+  printf("flags.show_ends = %d\n", flags.show_ends);
+  printf("flags.number = %d\n", flags.number);
+  printf("flags.squeeze_blank = %d\n", flags.squeeze_blank);
+  printf("flags.show_tabs = %d\n", flags.show_tabs);
+  printf("flags.show_nonprinting = %d\n", flags.show_nonprinting);
+  printf("flags.help = %d\n", flags.help);
+  printf("flags.version = %d\n", flags.version);
 }

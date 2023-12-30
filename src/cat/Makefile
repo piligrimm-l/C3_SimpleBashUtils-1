@@ -1,12 +1,12 @@
 CC = gcc -std=c11
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Werror -Wextra -pedantic
 CTC = s21_cat.c
 CTO = s21_cat.o
 CTFC = s21_cat_function.c
 CTFO = s21_cat_function.o
 
 s21_cat: $(CTO) $(CTFO)
-	$(CC) $(CFLAGS) $(CTO) $(CTFO) -o s21_cat.out
+	$(CC) $(CFLAGS) $(CTO) $(CTFO) -o s21_cat
 
 $(CTO): $(CTC)
 	$(CC) $(CFlAGS) -c $(CTC) 
