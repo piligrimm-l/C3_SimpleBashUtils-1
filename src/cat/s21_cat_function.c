@@ -185,21 +185,29 @@ void print_lines(s_options_t* flags, char* path) {
   FILE* fp = fopen(path, "rt");
   DIR* dp = opendir(path);
   char prev = '\0';
+  int character_counter = 0;
+  int line_counter = 0;
   int empty_line_counter = 0;
 
   if (fp != NULL && dp == NULL) {
     int ch = fgetc(fp);
+    ++character_counter;
     if (ch == '\n') {
       empty_line_counter = 1;
     }
     while (ch != EOF) {
       while (ch != '\n' && ch != EOF) {
+        if ((flags->b || flags->number_nonblank || flags->n || flags->number) &&
+            character_counter == 1) {
+          printf("%6d  ", ++line_counter);
+        }
         if (ch == '\t' && (flags->t || flags->T || flags->show_tabs ||
                            flags->A || flags->show_all)) {
           putc('^', stdout);
           putc('I', stdout);
           prev = ch;
           ch = fgetc(fp);
+          ++character_counter;
           continue;
         }
         if (flags->v || flags->e || flags->t || flags->show_nonprinting ||
@@ -216,37 +224,59 @@ void print_lines(s_options_t* flags, char* path) {
             putc('^', stdout);
             ch = ch - 64;
           }
+#ifdef __linux__
+          else if (ch > 159 && ch < 256) {
+            putc('M', stdout);
+            putc('-', stdout);
+            ch -= 128;
+            if (ch == 127) {
+              continue;
+            }
+          }
+#endif
         }
         putc(ch, stdout);
         prev = ch;
         ch = fgetc(fp);
+        ++character_counter;
       }
-      if (ch == '\n' && (flags->s || flags->squeeze_blank) && prev == '\n') {
-        if (!empty_line_counter) {
-          if (ch == '\n' && (flags->e || flags->E || flags->show_ends ||
-                             flags->A || flags->show_all)) {
+      if (ch == '\n') {
+        if ((flags->n || flags->number) && character_counter == 1 &&
+            (!empty_line_counter || prev != '\n')) {
+          printf("%6d  ", ++line_counter);
+        }
+        if ((flags->s || flags->squeeze_blank) && prev == '\n') {
+          if (!empty_line_counter) {
+            if (flags->e || flags->E || flags->show_ends || flags->A ||
+                flags->show_all) {
+              putc('$', stdout);
+            }
+            putc(ch, stdout);
+            ++empty_line_counter;
+          }
+          prev = ch;
+          ch = fgetc(fp);
+          character_counter = 0;
+          if (ch != '\n') {
+            empty_line_counter = 0;
+            ++character_counter;
+          }
+          continue;
+        } else if (ch != EOF) {
+          if (flags->e || flags->E || flags->show_ends || flags->A ||
+              flags->show_all) {
             putc('$', stdout);
           }
           putc(ch, stdout);
-          ++empty_line_counter;
+          character_counter = 0;
         }
-        prev = ch;
-        ch = fgetc(fp);
-        if (ch != '\n') {
-          empty_line_counter = 0;
-        }
-        continue;
-      } else if (ch != EOF) {
-        if (ch == '\n' && (flags->e || flags->E || flags->show_ends ||
-                           flags->A || flags->show_all)) {
-          putc('$', stdout);
-        }
-        putc(ch, stdout);
       }
       prev = ch;
       ch = fgetc(fp);
+      ++character_counter;
       if (ch != '\n') {
         empty_line_counter = 0;
+        character_counter = 1;
       }
     }
     fclose(fp);
