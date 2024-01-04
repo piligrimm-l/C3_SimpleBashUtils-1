@@ -1,39 +1,9 @@
-#include "s21_cat_function.h"
-
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-void no_flags() {
-  char ch;
-  while ((ch = getchar()) != EOF) {
-    putchar(ch);
-  }
-}
-
-void print_file(char* path) {
-  FILE* fp = fopen(path, "rt");
-  DIR* dp = opendir(path);
-
-  if (fp != NULL && dp == NULL) {
-    int ch = fgetc(fp);
-    while (ch != EOF) {
-      putc(ch, stdout);
-      ch = fgetc(fp);
-    }
-    fclose(fp);
-  } else {
-    if (dp != NULL) {
-      printf("%s: %s: Is a directory", PROGRAM_NAME, path);
-      closedir(dp);
-      exit(EXIT_FAILURE);
-    } else {
-      printf("%s: %s: No such file or directory", PROGRAM_NAME, path);
-      exit(EXIT_FAILURE);
-    }
-  }
-}
+#include "s21_cat_function.h"
 
 void parsing_args(int argc, char** argv, s_options_t* flags) {
   for (int i = 1; i < argc; ++i) {
@@ -97,7 +67,7 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
             break;
           case '-':
             if (strlen(argv[i]) == 1) {
-              flags->dash = 1;
+              ++flags->dash;
             }
             break;
           default:
@@ -150,39 +120,43 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
       if (!strcmp("--version", argv[i])) {
         flags->version = 1;
       }
+    } else if (argv[i][0] != '-') {
+      break;
     }
   }
 }
 
 void output(int argc, char** argv, s_options_t* flags) {
-  if (argc == 1 || (argc == 2 && argv[1][0] == '-' && strlen(argv[1]) == 1)) {
-    no_flags();
+  if (argc == 1) {
+    print_lines(flags, "-");
   } else if (flags->version) {
     printf("%s - program version 0.01 from 01/18/2024", PROGRAM_NAME);
     exit(EXIT_SUCCESS);
   } else if (flags->help) {
-    print_file("tests/help_s21_cat.txt");
+    s_options_t flags_0 = {0};
+    print_lines(&flags_0, "tests/help_s21_cat.txt");
     exit(EXIT_SUCCESS);
-  } else if (argc >= 2 && argv[1][0] != '-') {
-    for (int i = 1; i < argc; ++i) {
-      if (argv[i][0] == '-' && strlen(argv[i]) == 1 && flags->dash) {
-        no_flags();
-        flags->dash = 0;
-      } else {
-        print_file(argv[i]);
-      }
-    }
   } else {
     for (int i = 1; i != argc; ++i) {
-      if (argv[i][0] != '-') {
+      if (argv[i][0] != '-' || !strcmp(argv[i], "-")) {
         print_lines(flags, argv[i]);
-      }
-    }
+        //printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i], flags->dash);
+        if (!strcmp(argv[i], "-")) {
+          --(flags->dash);
+          //printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i], flags->dash);
+        } 
+      } 
+    }       
   }
 }
 
 void print_lines(s_options_t* flags, char* path) {
-  FILE* fp = fopen(path, "rt");
+  FILE* fp = NULL;
+  if (!strcmp(path, "-")) {
+    fp = stdin;    
+  } else {
+    fp = fopen(path, "rt");
+  }
   DIR* dp = opendir(path);
   char prev = '\0';
   int character_counter = 0;
@@ -199,7 +173,7 @@ void print_lines(s_options_t* flags, char* path) {
       while (ch != '\n' && ch != EOF) {
         if ((flags->b || flags->number_nonblank || flags->n || flags->number) &&
             character_counter == 1) {
-          printf("%6d  ", ++line_counter);
+          printf("%6d	", ++line_counter);
         }
         if (ch == '\t' && (flags->t || flags->T || flags->show_tabs ||
                            flags->A || flags->show_all)) {
@@ -243,7 +217,7 @@ void print_lines(s_options_t* flags, char* path) {
       if (ch == '\n') {
         if ((flags->n || flags->number) && character_counter == 1 &&
             (!empty_line_counter || prev != '\n')) {
-          printf("%6d  ", ++line_counter);
+          printf("%6d	", ++line_counter);
         }
         if ((flags->s || flags->squeeze_blank) && prev == '\n') {
           if (!empty_line_counter) {

@@ -26,8 +26,6 @@ typedef struct {
   int help;
 } s_options_t;
 
-void print_file(char* path);
-void no_flags();
 void parsing_args(int argc, char** argv, s_options_t* flags);
 void output(int argc, char** argv, s_options_t* flags);
 void print_lines(s_options_t* flags, char* path);
