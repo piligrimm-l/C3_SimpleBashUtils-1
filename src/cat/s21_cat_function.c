@@ -1,9 +1,9 @@
+#include "s21_cat_function.h"
+
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "s21_cat_function.h"
 
 void parsing_args(int argc, char** argv, s_options_t* flags) {
   for (int i = 1; i < argc; ++i) {
@@ -127,7 +127,7 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
 }
 
 void output(int argc, char** argv, s_options_t* flags) {
-  if (argc == 1) {
+  if (argc == 1 || !strcmp(argv[1], "--")) {
     print_lines(flags, "-");
   } else if (flags->version) {
     printf("%s - program version 0.01 from 01/18/2024", PROGRAM_NAME);
@@ -140,20 +140,21 @@ void output(int argc, char** argv, s_options_t* flags) {
     for (int i = 1; i != argc; ++i) {
       if (argv[i][0] != '-' || !strcmp(argv[i], "-")) {
         print_lines(flags, argv[i]);
-        //printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i], flags->dash);
+        // printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i], flags->dash);
         if (!strcmp(argv[i], "-")) {
-          --(flags->dash);
-          //printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i], flags->dash);
-        } 
-      } 
-    }       
+          --flags->dash;
+          // printf("argv[%d] = %s, flags->dash = %d\n", i, argv[i],
+          // flags->dash);
+        }
+      }
+    }
   }
 }
 
 void print_lines(s_options_t* flags, char* path) {
   FILE* fp = NULL;
   if (!strcmp(path, "-")) {
-    fp = stdin;    
+    fp = stdin;
   } else {
     fp = fopen(path, "rt");
   }
@@ -209,7 +210,9 @@ void print_lines(s_options_t* flags, char* path) {
           }
 #endif
         }
-        putc(ch, stdout);
+        if (ch != 127) {
+          putc(ch, stdout);
+        }
         prev = ch;
         ch = fgetc(fp);
         ++character_counter;
