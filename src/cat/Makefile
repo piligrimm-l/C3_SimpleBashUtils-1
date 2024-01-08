@@ -14,6 +14,21 @@ $(CTO): $(CTC)
 $(CTFO): $(CTFC)
 	$(CC) $(CFLAGS) -c $(CTFC)
 
+clf_test: cp_clf
+	clang-format -n *.c *.h
+
+clf: cp_clf
+	clang-format -i *.c *.h
+
+cp_clf:
+ifeq ("$(wildcard ../.clang-format)","")
+	cp ../../materials/linters/.clang-format ../
+endif
+
+cppcheck:
+	cppcheck --enable=all --suppress=missingIncludeSystem *.c *.h
+
 clean:
 	rm -rf *.o
-	rm -rf *.out
+	rm -rf s21_cat
+	rm -rf ../.clang-format
