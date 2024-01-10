@@ -5,8 +5,11 @@ CTO = s21_cat.o
 CTFC = s21_cat_function.c
 CTFO = s21_cat_function.o
 
+cp_bin: s21_cat
+	cp s21_cat ../common/cat_test/s21_cat
+
 s21_cat: $(CTO) $(CTFO)
-	$(CC) $(CFLAGS) $(CTO) $(CTFO) -o s21_cat
+	$(CC) $(CFLAGS) $(CTO) $(CTFO) -o s21_cat 
 
 $(CTO): $(CTC)
 	$(CC) $(CFlAGS) -c $(CTC) 
