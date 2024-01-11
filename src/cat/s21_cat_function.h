@@ -35,6 +35,5 @@ typedef struct {
 void parsing_args(int argc, char** argv, s_options_t* flags);
 void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter);
 void print_lines(s_options_t* flags, char* path, s_counters_t* counter);
-void print_flags(s_options_t flags);
 
 #endif

@@ -117,15 +117,11 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
         exit(EXIT_FAILURE);
       }
     } else {
-      
 #ifdef __APPLE__
-
       if (argv[i][0] != '-') {
         break;
       }
-
 #endif
-
     }
   }
 }
@@ -164,10 +160,8 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
   counter->prev = '\0';
 
 #ifdef __APPLE__
-
   counter->lines = 0;
   counter->empty_lines = 0;
-
 #endif
 
   if (fp != NULL && dp == NULL) {
@@ -180,9 +174,16 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
       while (ch != '\n' && ch != EOF) {
         if ((flags->b || flags->number_nonblank || flags->n || flags->number) &&
             character_counter == 1) {
+
+#if __linux__
           if (!(ch == 94 && counter->prev == 0)) {
             printf("%6d\t", ++counter->lines);
           }
+#else 
+
+            printf("%6d\t", ++counter->lines);
+#endif
+
         }
         if (ch == '\t' && (flags->t || flags->T || flags->show_tabs ||
                            flags->A || flags->show_all)) {
@@ -211,7 +212,6 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
             putc('^', stdout);
             ch = ch - 64;
           }
-
 #ifdef __linux__
           else if (ch > 159 && ch < 255) {
             putc('M', stdout);
@@ -219,16 +219,9 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
             ch -= 128;
           }
 #endif
-
         }
-        if (ch != 255 && ch != 127) {
-/*
-#ifdef __linux__
-          if (ch == 127) {
-            printf("%c", 127);
-          }
-#endif
-*/   
+        if (!((ch == 255 || ch == 127) &&
+              (flags->v || flags->e || flags->t || flags->A))) {
           putc(ch, stdout);
         }
         counter->prev = ch;
@@ -244,7 +237,6 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
           printf("%6d\t", ++counter->lines);
         }
         if ((flags->s || flags->squeeze_blank) && counter->prev == '\n') {
-          //printf("prev = %s%c, empty_lines = %d, ch_caounter = %d", counter->prev == '\n' ? "\\n" : "", counter->prev == '\n' ? ' ' : counter->prev, counter->empty_lines, character_counter);
           if (!counter->empty_lines) {
             if (flags->e || flags->E || flags->show_ends || flags->A ||
                 flags->show_all) {
@@ -286,26 +278,3 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
     }
   }
 }
-
-/*void print_flags(s_options_t flags) {
-  printf("flags.A = %d\n", flags.A);
-  printf("flags.b = %d\n", flags.b);
-  printf("flags.e = %d\n", flags.e);
-  printf("flags.E = %d\n", flags.E);
-  printf("flags.n = %d\n", flags.n);
-  printf("flags.s = %d\n", flags.s);
-  printf("flags.t = %d\n", flags.t);
-  printf("flags.T = %d\n", flags.T);
-  printf("flags.u = %d\n", flags.u);
-  printf("flags.v = %d\n", flags.v);
-  printf("flags.dash = %d\n", flags.dash);
-  printf("flags.show_all = %d\n", flags.show_all);
-  printf("flags.number_nonblank = %d\n", flags.number_nonblank);
-  printf("flags.show_ends = %d\n", flags.show_ends);
-  printf("flags.number = %d\n", flags.number);
-  printf("flags.squeeze_blank = %d\n", flags.squeeze_blank);
-  printf("flags.show_tabs = %d\n", flags.show_tabs);
-  printf("flags.show_nonprinting = %d\n", flags.show_nonprinting);
-  printf("flags.help = %d\n", flags.help);
-  printf("flags.version = %d\n", flags.version);
-}*/
