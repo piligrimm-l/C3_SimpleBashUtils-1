@@ -168,24 +168,54 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
         flags->o = 1;
       } else if (!strcmp("--perl-regexp", argv[i])) {
         flags->P = 1;
+      } else if (!strcmp("--recursive", argv[i])) {
+        flags->r = 1;
+      } else if (!strcmp("--dereference-recursive", argv[i])) {
+        flags->R = 1;
       } else if (!strcmp("--quiet", argv[i]) || !strcmp("--silent", argv[i])) {
         flags->q = 1;
       } else if (!strcmp("--no-messages", argv[i])) {
         flags->s = 1;
+      } else if (!strcmp("--initial-tab", argv[i])) {
+        flags->T = 1;
+      } else if (!strcmp("--binary", argv[i])) {
+        flags->U = 1;
       } else if (!strcmp("--invert-match", argv[i])) {
         flags->v = 1;
+      } else if (!strcmp("--version", argv[i])) {
+        flags->V = 1;
       } else if (!strcmp("--word-regexp", argv[i])) {
         flags->w = 1;
       } else if (!strcmp("--line-regexp", argv[i])) {
         flags->x = 1;
+      } else if (!strcmp("--null-data", argv[i])) {
+        flags->z = 1;
+      } else if (!strcmp("--null", argv[i])) {
+        flags->Z = 1;
+      } else if (!strcmp("--binary-files=", argv[i])) {
+        flags->binary_files = 1;
       } else if (!strcmp("--color", argv[i]) || !strcmp("--colour", argv[i])) {
         flags->color = 1;
-      } else if (!strcmp("--no-ignore-case", argv[i])) {
-        flags->no_ignore_case = 1;
+      } else if (!strcmp("--exclude=", argv[i])) {
+        flags->exclude = 1;
+      } else if (!strcmp("--exclude-dir=", argv[i])) {
+        flags->exclude_dir = 1;
+      } else if (!strcmp("--exclude-from=", argv[i])) {
+        flags->exclude_from = 1;
+      } else if (!strcmp("--group-separator=", argv[i])) {
+        flags->group_separator = 1;
       } else if (!strcmp("--help", argv[i])) {
         flags->help = 1;
-      } else if (!strcmp("--version", argv[i])) {
-        flags->V = 1;
+      } else if (!strcmp("--include=", argv[i])) {
+        flags->include = 1;
+      } else if (!strcmp("--label=", argv[i])) {
+        flags->label = 1;
+      } else if (!strcmp("--line-buffered", argv[i])) {
+        flags->line_buffered = 1;
+      } else if (!strcmp("--no-group-separator", argv[i])) {
+        flags->no_group_separator = 1;
+      } else if (!strcmp("--no-ignore-case", argv[i])) {
+        flags->no_ignore_case = 1;
       } else {
         printf("%s: illegal option -- %s\n", PROGRAM_NAME, argv[i]);
         printf("usage: [-AbeEnstTuv] [file ...]");

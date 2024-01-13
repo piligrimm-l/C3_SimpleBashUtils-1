@@ -39,18 +39,18 @@ typedef struct {
   int x;
   int z;
   int Z;
-  int binary_files = ;
+  int binary_files;
   int color;
-  int exclude = ;
-  int exclude_dir = ;
-  int exclude_from = ;
-  int include = ;
-  int group_separator = ;
-  int no_group_separator;
+  int exclude;
+  int exclude_dir;
+  int exclude_from;
+  int group_separator;
+  int help;
+  int include;
   int label;
   int line_buffered;
+  int no_group_separator;
   int no_ignore_case;
-  int help;
 } s_options_t;
 
 void parsing_args(int argc, char** argv, s_options_t* flags);
