@@ -1,0 +1,70 @@
+NAME
+     s21_cat -- conscatenate files and print on the standard output
+
+SYNOPSIS
+     s21_cat [OPTION]... [FILE]...
+
+DESCRIPTION
+       Concatenate FILE(s) to standard output.
+
+       With no FILE, or when FILE is -, read standard input.
+
+       -A, --show-all
+              equivalent to -vET
+
+       -b, --number-nonblank
+              number nonempty output lines, overrides -n
+
+       -e     equivalent to -vE
+
+       -E, --show-ends
+              display $ at end of each line
+
+       -n, --number
+              number all output lines
+
+       -s, --squeeze-blank
+              suppress repeated empty output lines
+
+       -t     equivalent to -vT
+
+       -T, --show-tabs
+              display TAB characters as ^I
+
+       -u     (ignored)
+
+       -v, --show-nonprinting
+              use ^ and M- notation, except for LFD and TAB
+
+       --help display this help and exit
+
+       --version
+              output version information and exit      
+
+EXIT STATUS
+     The s21_cat utility exits 0 on success, and >0 if an error occurs.
+
+EXAMPLES
+     The command:
+
+           s21_cat file1
+
+     will print the contents of file1 to the standard output.
+
+     The command:
+
+           s21_cat file1 file2 > file3
+
+     will sequentially print the contents of file1 and file2 to the file file3, trunscating file3 if it
+     already exists.
+
+     The command:
+
+           s21_cat file1 - file2 - file3
+
+     will print the contents of file1, print data it receives from the standard input until it
+     receives an EOF (`^D') character, print the contents of file2, read and output contents of the
+     standard input again, then finally output the contents of file3.  Note that if the standard input
+     referred to a file, the second dash on the command-line would have no effect, since the entire
+     contents of the file would have already been read and printed by s21_cat when it encountered the
+     first `-' operand.
