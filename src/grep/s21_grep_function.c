@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include "s21_grep.h"
 
@@ -225,7 +226,26 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
   }
 }
 
-void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter) {
+FILE* open_file(char* path) {
+  errno = 0;
+  FILE* fp = fopen(path, "rt");
+  return fp;
+}
+
+void close_file(FILE* fp) {
+  if (fp) {
+    fclose(fp);
+  } else {
+    perror("fopen()");
+  }
+}
+
+void search_pattern(int argc, char** argv, s_options_t flags) {
+  if (flags->e && strlen(argv[i])) {
+    
+  }
+}
+/*void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter) {
   if (argc == 1 || !strcmp(argv[1], "--")) {
     print_lines(flags, "-", counter);
   } else if (flags->version) {
@@ -245,9 +265,9 @@ void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter) {
       }
     }
   }
-}
+}*/
 
-void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
+/*void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
   FILE* fp = NULL;
   if (!strcmp(path, "-")) {
     fp = freopen("/dev/tty", "rt", stdin);
@@ -374,4 +394,4 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
       exit(EXIT_FAILURE);
     }
   }
-}
+}*/
