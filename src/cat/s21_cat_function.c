@@ -267,11 +267,11 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
     fclose(fp);
   } else {
     if (dp != NULL) {
-      printf("%s: %s: Is a directory", PROGRAM_NAME, path);
+      fprintf(stderr, "%s: %s: Is a directory", PROGRAM_NAME, path);
       closedir(dp);
       exit(EXIT_FAILURE);
     } else {
-      printf("%s: %s: No such file or directory", PROGRAM_NAME, path);
+      fprintf(stderr, "%s: %s: No such file or directory", PROGRAM_NAME, path);
       exit(EXIT_FAILURE);
     }
   }

@@ -33,10 +33,10 @@ testing()
     if [ "$DIFF_RES" == "Файлы test_s21_cat.log и test_sys_cat.log идентичны" ]
     then
       (( SUCCESS++ ))
-        printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m cat $t\n"
+        echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m cat $t"
     else
       (( FAIL++ ))
-        printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m cat $t\n"
+        echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m cat $t"
     fi
     rm test_s21_cat.log test_sys_cat.log
 }
@@ -117,6 +117,6 @@ do
     done
 done
 
-printf "\033[31mFAIL: $FAIL\033[0m\n"
-printf "\033[32mSUCCESS: $SUCCESS\033[0m\n"
-printf "ALL: $COUNTER\n"
+echo "\033[31mFAIL: $FAIL\033[0m"
+echo "\033[32mSUCCESS: $SUCCESS\033[0m"
+echo "ALL: $COUNTER"

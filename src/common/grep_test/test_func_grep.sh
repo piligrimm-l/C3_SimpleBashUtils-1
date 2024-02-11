@@ -49,13 +49,13 @@ testing()
     grep $t > test_sys_grep.log
     DIFF_RES="$(diff -s test_s21_grep.log test_sys_grep.log)"
     (( COUNTER++ ))
-    if [ "$DIFF_RES" == "Файлы test_s21_grep.log and test_sys_grep.log идентичны" ]
+    if [ "$DIFF_RES" == "Файлы test_s21_grep.log и test_sys_grep.log идентичны" ]
     then
       (( SUCCESS++ ))
-      echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m grep $t"
+      printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m grep $t\n"
     else
       (( FAIL++ ))
-      echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m grep $t"
+      printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m grep $t\n"
     fi
     rm test_s21_grep.log test_sys_grep.log
 }
@@ -147,6 +147,6 @@ do
     done
 done
 
-echo "\033[31mFAIL: $FAIL\033[0m"
-echo "\033[32mSUCCESS: $SUCCESS\033[0m"
-echo "ALL: $COUNTER"
+printf "\033[31mFAIL: $FAIL\033[0m\n"
+printf "\033[32mSUCCESS: $SUCCESS\033[0m\n"
+printf "ALL: $COUNTER\n"
