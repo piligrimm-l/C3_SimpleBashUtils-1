@@ -22,6 +22,11 @@ $(GRFO): $(GRFC)
 $(S21LFO): $(S21LFC)
 	$(CC) $(CFLAGS) -c $(S21LFC)
 
+test: 
+	cp ../common/grep_test/*.txt .
+	cp ../common/grep_test/*.sh .
+	./test_s21_grep.sh
+	
 clf_test: cp_clf
 	clang-format -n *.c *.h
 
@@ -30,7 +35,13 @@ clf: cp_clf
 
 cp_clf:
 ifeq ("$(wildcard ../.clang-format)","")
-	cp ../../materials/linters/.clang-format ../
+	cp ../../materials/linters/.clang-format ../  
+else ifeq ("$(wildcard .clang-format)","")
+	cp ../../materials/linters/.clang-format .
+else ifeq ("$(wildcard ../cat/.clang-format)","")
+	cp ../../materials/linters/.clang-format ../cat
+else ifeq ("$(wildcard ../common/.clang-format)","")
+	cp ../../materials/linters/.clang-format ../common
 endif
 
 leaks:
@@ -40,5 +51,9 @@ cppcheck:
 	cppcheck --enable=all --suppress=missingIncludeSystem *.c *.h
 
 clean:
-	rm -rf *.o
+	rm -rf *.o *.txt *.sh *.log
 	rm -rf s21_grep
+	rm .clang-format
+	rm ../cat/.clang-format
+	rm ../common/.clang-format
+	rm ../.clang-format

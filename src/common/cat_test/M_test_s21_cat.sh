@@ -5,11 +5,16 @@ FAIL=0
 COUNTER=0
 DIFF_RES=""
 
-declare -a tests=(
+declare -a basics=(
 "VAR test_case_cat.txt"
+"VAR empty.txt"
+"VAR one_newline_character.txt"
+"VAR two_newline_character.txt"
+"VAR one_letter.txt"
+"VAR v_test.txt"
 )
 
-declare -a extra=(
+declare -a combi=(
 "-s test_1_cat.txt"
 "-b -e -n -s -t -v test_1_cat.txt"
 "-t test_3_cat.txt"
@@ -30,42 +35,43 @@ testing()
     cat $t > test_sys_cat.log
     DIFF_RES="$(diff -s test_s21_cat.log test_sys_cat.log)"
     (( COUNTER++ ))
+    #if [ "$DIFF_RES" == "Files test_s21_cat.log and test_sys_cat.log are identical" ]
     if [ "$DIFF_RES" == "Файлы test_s21_cat.log и test_sys_cat.log идентичны" ]
     then
       (( SUCCESS++ ))
-        echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m cat $t"
+        printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[32msuccess\033[0m cat $t\n"
     else
       (( FAIL++ ))
-        echo "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m cat $t"
+        printf "\033[31m$FAIL\033[0m/\033[32m$SUCCESS\033[0m/$COUNTER \033[31mfail\033[0m cat $t\n"
     fi
     rm test_s21_cat.log test_sys_cat.log
 }
 
-# специфические тесты
-for i in "${extra[@]}"
+# combi tests
+for i in "${combi[@]}"
 do
     var="-"
     testing $i
 done
 
-# 1 параметр
+# 1 key
 for var1 in b e n s t v
 do
-    for i in "${tests[@]}"
+    for i in "${basics[@]}"
     do
         var="-$var1"
         testing $i
     done
 done
 
-# 2 параметра
+# 2 keys
 for var1 in b e n s t v
 do
     for var2 in b e n s t v
     do
         if [ $var1 != $var2 ]
         then
-            for i in "${tests[@]}"
+            for i in "${basics[@]}"
             do
                 var="-$var1 -$var2"
                 testing $i
@@ -74,7 +80,7 @@ do
     done
 done
 
-# 3 параметра
+# 3 keys 
 for var1 in b e n s t v
 do
     for var2 in b e n s t v
@@ -83,7 +89,7 @@ do
         do
             if [ $var1 != $var2 ] && [ $var2 != $var3 ] && [ $var1 != $var3 ]
             then
-                for i in "${tests[@]}"
+                for i in "${basics[@]}"
                 do
                     var="-$var1 -$var2 -$var3"
                     testing $i
@@ -93,7 +99,7 @@ do
     done
 done
 
-# 4 параметра
+# 4 keys
 for var1 in b e n s t v
 do
     for var2 in b e n s t v
@@ -106,7 +112,7 @@ do
                 && [ $var1 != $var3 ] && [ $var1 != $var4 ] \
                 && [ $var2 != $var4 ] && [ $var3 != $var4 ]
                 then
-                    for i in "${tests[@]}"
+                    for i in "${basics[@]}"
                     do
                         var="-$var1 -$var2 -$var3 -$var4"
                         testing $i
@@ -117,6 +123,35 @@ do
     done
 done
 
-echo "\033[31mFAIL: $FAIL\033[0m"
-echo "\033[32mSUCCESS: $SUCCESS\033[0m"
-echo "ALL: $COUNTER"
+# 5 keys
+for var1 in b e n s t v
+do
+    for var2 in b e n s t v
+    do
+        for var3 in b e n s t v
+        do
+            for var4 in b e n s t v
+            do
+                for var5 in b e n s t v
+                do
+                    if [ $var1 != $var2 ] && [ $var2 != $var3 ] \
+                    && [ $var1 != $var3 ] && [ $var2 != $var4 ] \
+                    && [ $var1 != $var4 ] && [ $var2 != $var5 ] \
+                    && [ $var1 != $var5 ] && [ $var3 != $var4 ] \
+                    && [ $var3 != $var5 ] && [ $var4 != $var5 ] 
+                    then
+                        for i in "${basics[@]}"
+                        do
+                            var="-$var1 -$var2 -$var3 -$var4 -$var5"
+                            testing $i
+                        done
+                    fi
+                done
+            done
+        done
+    done
+done
+
+printf "\033[31mFAIL: $FAIL\033[0m\n"
+printf "\033[32mSUCCESS: $SUCCESS\033[0m\n"
+printf "ALL: $COUNTER\n"

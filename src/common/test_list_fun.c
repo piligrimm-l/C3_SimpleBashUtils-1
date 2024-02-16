@@ -1,9 +1,9 @@
 #include "s21_list_functions.h"
 
 int main(void) {
-  s_list_t* list = NULL;
-  s_list_item_t* new_item = NULL;
-  char* str = NULL;
+  s_list_t *list = NULL;
+  s_list_item_t *new_item = NULL;
+  char *str = NULL;
 
   list = create_list();
   insert_list_item(list, -1, "one");

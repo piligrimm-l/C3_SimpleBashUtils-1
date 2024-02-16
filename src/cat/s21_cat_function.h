@@ -3,6 +3,14 @@
 
 #define PROGRAM_NAME "s21_cat"
 
+#include <dirent.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define BUFFER_SIZE 512
+
 typedef struct {
   int A;
   int b;
@@ -32,8 +40,10 @@ typedef struct {
   int empty_lines;
 } s_counters_t;
 
-void parsing_args(int argc, char** argv, s_options_t* flags);
-void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter);
-void print_lines(s_options_t* flags, char* path, s_counters_t* counter);
+void parsing_args(int argc, char **argv, s_options_t *flags);
+void output(int argc, char **argv, s_options_t *flags, s_counters_t *counter);
+void print_lines(s_options_t *flags, char *path, s_counters_t *counter);
+void print_error(const char *program_name, const char *file_name,
+                 const char *message);
 
 #endif

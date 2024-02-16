@@ -5,7 +5,7 @@ FAIL=0
 COUNTER=0
 DIFF_RES=""
 
-declare -a tests=(
+declare -a basics=(
 "s test_0_grep.txt VAR"
 "for s21_grep.c s21_grep.h Makefile VAR"
 "for s21_grep.c VAR"
@@ -15,11 +15,11 @@ declare -a tests=(
 "-e while -e void s21_grep.c Makefile VAR -f test_ptrn_grep.txt"
 )
 
-declare -a extra=(
+declare -a combi=(
 "-n for test_1_grep.txt test_2_grep.txt"
 "-n for test_1_grep.txt"
 "-n -e ^\} test_1_grep.txt"
-"-c -e /\ test_1_grep.txt"
+"-c -e PR test_1_grep.txt"
 "-ce ^int test_1_grep.txt test_2_grep.txt"
 "-e ^int test_1_grep.txt"
 "-nivh = test_1_grep.txt test_2_grep.txt"
@@ -49,6 +49,7 @@ testing()
     grep $t > test_sys_grep.log
     DIFF_RES="$(diff -s test_s21_grep.log test_sys_grep.log)"
     (( COUNTER++ ))
+    #if [ "$DIFF_RES" == "Files test_s21_grep.log and test_sys_grep.log are identical" ]
     if [ "$DIFF_RES" == "Файлы test_s21_grep.log и test_sys_grep.log идентичны" ]
     then
       (( SUCCESS++ ))
@@ -60,87 +61,86 @@ testing()
     rm test_s21_grep.log test_sys_grep.log
 }
 
-# специфические тесты
-for i in "${extra[@]}"
+for index in "${combi[@]}"
 do
     var="-"
-    testing $i
+    testing $index
 done
 
-# 1 параметр
-for var1 in v c l n h o
+# one key
+for var1 in v c l n h o i H y E
 do
-    for i in "${tests[@]}"
+    for index in "${basics[@]}"
     do
         var="-$var1"
-        testing $i
+        testing $index
     done
 done
 
-# 2 параметра
-for var1 in v c l n h o
+# two keys
+for var1 in v c l n h o i H y E
 do
-    for var2 in v c l n h o
+    for var2 in v c l n h o i H y E
     do
         if [ $var1 != $var2 ]
         then
-            for i in "${tests[@]}"
+            for index in "${basics[@]}"
             do
                 var="-$var1 -$var2"
-                testing $i
+                testing $index
             done
         fi
     done
 done
 
-# 3 параметра
-for var1 in v c l n h o
+# three keys
+for var1 in v c l n h o i H y E
 do
-    for var2 in v c l n h o
+    for var2 in v c l n h o i H y E
     do
-        for var3 in v c l n h o
+        for var3 in v c l n h o i H y E
         do
             if [ $var1 != $var2 ] && [ $var2 != $var3 ] && [ $var1 != $var3 ]
             then
-                for i in "${tests[@]}"
+                for index in "${basics[@]}"
                 do
                     var="-$var1 -$var2 -$var3"
-                    testing $i
+                    testing $index
                 done
             fi
         done
     done
 done
 
-# 2 сдвоенных параметра
-for var1 in v c l n h o
+# two double keys
+for var1 in v c l n h o i H y E
 do
-    for var2 in v c l n h o
+    for var2 in v c l n h o i H y E
     do
         if [ $var1 != $var2 ]
         then
-            for i in "${tests[@]}"
+            for index in "${basics[@]}"
             do
                 var="-$var1$var2"
-                testing $i
+                testing $index
             done
         fi
     done
 done
 
-# 3 строенных параметра
-for var1 in v c l n h o
+# three triple keys
+for var1 in v c l n h o i H y E
 do
-    for var2 in v c l n h o
+    for var2 in v c l n h o i H y E
     do
-        for var3 in v c l n h o
+        for var3 in v c l n h o i H y E
         do
             if [ $var1 != $var2 ] && [ $var2 != $var3 ] && [ $var1 != $var3 ]
             then
-                for i in "${tests[@]}"
+                for index in "${basics[@]}"
                 do
                     var="-$var1$var2$var3"
-                    testing $i
+                    testing $index
                 done
             fi
         done

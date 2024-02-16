@@ -1,7 +1,7 @@
 #include "s21_grep.h"
 
-void parsing_args(int argc, char** argv, s_options_t* flags, s_list_t* patterns,
-                  s_list_t* fpatterns, s_list_t* paths) {
+void parsing_args(int argc, char **argv, s_options_t *flags, s_list_t *patterns,
+                  s_list_t *fpatterns, s_list_t *paths) {
   errno = 0;
   for (int i = 1; i != argc; ++i) {
     if (strlen(argv[i]) > 1 && argv[i][0] == '-' && argv[i][1] != '-') {
@@ -238,8 +238,8 @@ void parsing_args(int argc, char** argv, s_options_t* flags, s_list_t* patterns,
   scan_args_1_2(argv, flags, patterns, paths);
 }
 
-void scan_pattern(s_list_t* patterns, s_list_t* fpatterns, s_list_t* paths,
-                  int argc, char** argv, int* i, size_t* j) {
+void scan_pattern(s_list_t *patterns, s_list_t *fpatterns, s_list_t *paths,
+                  int argc, char **argv, int *i, size_t *j) {
   if (*j == (strlen(argv[*i]) - 1)) {
     if (argv[*i][*j] == 'e') {
       insert_list_item(patterns, 1, argv[++(*i)]);
@@ -267,8 +267,8 @@ void scan_pattern(s_list_t* patterns, s_list_t* fpatterns, s_list_t* paths,
   }
 }
 
-void scan_args_1_2(char** argv, s_options_t* flags, s_list_t* patterns,
-                   s_list_t* paths) {
+void scan_args_1_2(char **argv, s_options_t *flags, s_list_t *patterns,
+                   s_list_t *paths) {
   if (flags->e) {
     if (argv[1][0] != '-' || !strcmp(argv[1], "-")) {
       insert_list_item(paths, -1, argv[1]);
@@ -298,12 +298,12 @@ void scan_args_1_2(char** argv, s_options_t* flags, s_list_t* patterns,
   }
 }
 
-void write_fpatterns(s_list_t* fpatterns, s_list_t* patterns) {
-  FILE* fp = NULL;
-  DIR* dp = NULL;
-  char* pattern = NULL;
+void write_fpatterns(s_list_t *fpatterns, s_list_t *patterns) {
+  FILE *fp = NULL;
+  DIR *dp = NULL;
+  char *pattern = NULL;
   errno = 0;
-  s_list_item_t* current_fpatterns = fpatterns->head;
+  s_list_item_t *current_fpatterns = fpatterns->head;
   while (current_fpatterns) {
     if (!strcmp(current_fpatterns->data, "-")) {
       fp = freopen("/dev/tty", "r", stdin);
@@ -316,8 +316,10 @@ void write_fpatterns(s_list_t* fpatterns, s_list_t* patterns) {
       while (pattern[0] != '\0') {
         *strchr(pattern, '\n') = '\0';
         insert_list_item(patterns, 1, pattern);
+        clean_pointer(pattern);
         pattern = read_line(fp);
       }
+      clean_pointer(pattern);
       fclose(fp);
     } else {
       if (dp) {
@@ -333,7 +335,7 @@ void write_fpatterns(s_list_t* fpatterns, s_list_t* patterns) {
   }
 }
 
-int scan_color_flags(char** argv, int i) {
+int scan_color_flags(char **argv, int i) {
   int return_value = 0;
   if (!strcmp("--color", argv[i]) || !strcmp("--colour", argv[i]) ||
       !strcmp("--color=auto", argv[i]) || !strcmp("--colour=auto", argv[i]) ||
@@ -347,28 +349,29 @@ int scan_color_flags(char** argv, int i) {
   return return_value;
 }
 
-void no_file_name(s_list_t* paths, const s_list_t* patterns) {
+void no_file_name(s_list_t *paths, const s_list_t *patterns) {
   if (!paths->count && patterns->count) {
     insert_list_item(paths, 1, "-");
   }
 }
 
-void print_error(const char* program_name, const char* file_name,
-                 const char* message) {
+void print_error(const char *program_name, const char *file_name,
+                 const char *message) {
   char error_message[BUFFER_SIZE] = {'\0'};
   sprintf(error_message, "%s: %s%s", program_name, file_name, message);
   perror(error_message);
 }
 
-void clean_pointer(void* ptr) {
+void clean_pointer(void *ptr) {
   if (ptr) {
     free(ptr);
+    ptr = NULL;
   }
 }
 
-void* ptr_realloc(void* data, size_t* data_size, size_t type_size) {
+void *ptr_realloc(void *data, size_t *data_size, size_t type_size) {
   size_t newsize = *data_size * 2;
-  void* new_data = realloc(data, newsize * type_size);
+  void *new_data = realloc(data, newsize * type_size);
   if (new_data == NULL) {
     free(data);
     data = NULL;
@@ -380,10 +383,10 @@ void* ptr_realloc(void* data, size_t* data_size, size_t type_size) {
   return data;
 }
 
-char* read_line(FILE* fp) {
+char *read_line(FILE *fp) {
   size_t i = 0;
   size_t str_size = 8;
-  char* str = (char*)calloc(str_size, sizeof(char));
+  char *str = (char *)calloc(str_size, sizeof(char));
   while ((str[i] = fgetc(fp)) != '\n' && str[i] != EOF) {
     if (i > str_size - 2) {
       str = ptr_realloc(str, &str_size, sizeof(char));
@@ -406,16 +409,16 @@ void print_regerror(int errnum, regex_t regex) {
   fprintf(stderr, "%s\n", error_message);
 }
 
-size_t* search_regex(char* str, const s_list_t* patterns, size_t* index,
-                     const s_options_t* flags) {
+size_t *search_regex(char *str, const s_list_t *patterns, size_t *index,
+                     const s_options_t *flags) {
   regmatch_t pmatch[1];
   size_t size_app = 8;
-  size_t* app = (size_t*)calloc(size_app, sizeof(size_t));
+  size_t *app = (size_t *)calloc(size_app, sizeof(size_t));
   int errnum;
-  s_list_item_t* current_pattern = patterns->head;
+  s_list_item_t *current_pattern = patterns->head;
   while (current_pattern) {
     regex_t regex;
-    char* pstr = str;
+    char *pstr = str;
     if (flags->i && flags->E) {
       errnum = regcomp(&regex, current_pattern->data,
                        REG_NEWLINE | REG_ICASE | REG_EXTENDED);
@@ -451,9 +454,9 @@ size_t* search_regex(char* str, const s_list_t* patterns, size_t* index,
   return app;
 }
 
-void print_line(const char* str, const size_t* app, size_t index,
-                const s_chcolor_t* colors, const s_options_t* flags) {
-  char* mask = (char*)calloc(strlen(str) + 1, sizeof(char));
+void print_line(const char *str, const size_t *app, size_t index,
+                const s_chcolor_t *colors, const s_options_t *flags) {
+  char *mask = (char *)calloc(strlen(str) + 1, sizeof(char));
   for (size_t i = 0; i != index; i += 2) {
     for (size_t j = 0; j != strlen(str); ++j) {
       if (j >= app[i] && j < app[i + 1]) {
@@ -477,12 +480,12 @@ void print_line(const char* str, const size_t* app, size_t index,
   clean_pointer(mask);
 }
 
-void search_patterns(FILE* fp, const s_list_t* patterns, const s_list_t* paths,
-                     char* file_name, const s_options_t* flags) {
+void search_patterns(FILE *fp, const s_list_t *patterns, const s_list_t *paths,
+                     char *file_name, const s_options_t *flags) {
   s_chcolor_t colors = {1, 5, 6, 2};
   size_t index = 0;
-  char* str = NULL;
-  size_t* app = NULL;
+  char *str = NULL;
+  size_t *app = NULL;
   int count_lines = 0;
   int count_matches = 0;
   do {
@@ -526,11 +529,27 @@ void search_patterns(FILE* fp, const s_list_t* patterns, const s_list_t* paths,
   }
 }
 
-void output(const s_options_t* flags, const s_list_t* patterns,
-            const s_list_t* paths) {
-  s_list_item_t* current_file = paths->head;
-  FILE* fp = NULL;
-  DIR* dp = NULL;
+void clean_cp_pattern(s_list_t *patterns, s_options_t *flags) {
+  if (flags->i) {
+    s_list_item_t *cr_ptrn = patterns->head;
+    for (int i = 1; i <= patterns->count; ++i) {
+      for (int j = i + 1; j <= patterns->count; ++j) {
+        if (!strcasecmp(cr_ptrn->data, cr_ptrn->next->data)) {
+          int index = search_list_item(patterns, cr_ptrn->next->data);
+          delete_list_item(patterns, index);
+        }
+      }
+      if (cr_ptrn->next) {
+        cr_ptrn = cr_ptrn->next;
+      }
+    }
+  }
+}
+
+void output(s_options_t *flags, s_list_t *patterns, const s_list_t *paths) {
+  s_list_item_t *current_file = paths->head;
+  FILE *fp = NULL;
+  DIR *dp = NULL;
   errno = 0;
   for (int i = 1; i <= paths->count; ++i) {
     if (!strcmp(current_file->data, "-") || !strcmp(current_file->data, "")) {
@@ -540,6 +559,7 @@ void output(const s_options_t* flags, const s_list_t* patterns,
       dp = opendir(current_file->data);
     }
     if (fp) {
+      clean_cp_pattern(patterns, flags);
       search_patterns(fp, patterns, paths, current_file->data, flags);
       if (!flags->l) {
         fclose(fp);
@@ -561,8 +581,8 @@ void output(const s_options_t* flags, const s_list_t* patterns,
   }
 }
 
-void n_option(const s_options_t* flags, const int* count_lines,
-              const s_chcolor_t* colors) {
+void n_option(const s_options_t *flags, const int *count_lines,
+              const s_chcolor_t *colors) {
   if (flags->n) {
     if (flags->color) {
       printf("\033[3%dm%d\033[0m", colors->number_line_color, *count_lines);
@@ -573,9 +593,9 @@ void n_option(const s_options_t* flags, const int* count_lines,
   }
 }
 
-void c_option(const s_options_t* flags, const s_list_t* paths, char* file_name,
-              const int* count_matches, const s_chcolor_t* colors) {
-  char* pfn = file_name;
+void c_option(const s_options_t *flags, const s_list_t *paths, char *file_name,
+              const int *count_matches, const s_chcolor_t *colors) {
+  char *pfn = file_name;
   if (flags->c) {
     if ((paths->count == 1 && !flags->H) || flags->h) {
       printf("%d\n", *count_matches);
@@ -594,10 +614,10 @@ void c_option(const s_options_t* flags, const s_list_t* paths, char* file_name,
   }
 }
 
-void e_option(const s_options_t* flags, const char* str, const s_list_t* paths,
-              const s_chcolor_t* colors, char* file_name, size_t index,
-              int count_lines, const size_t* app) {
-  char* pfn = file_name;
+void e_option(const s_options_t *flags, const char *str, const s_list_t *paths,
+              const s_chcolor_t *colors, char *file_name, size_t index,
+              int count_lines, const size_t *app) {
+  char *pfn = file_name;
   if ((paths->count == 1 && !flags->H) || flags->h) {
     n_option(flags, &count_lines, colors);
     print_line(str, app, index, colors, flags);
@@ -616,9 +636,9 @@ void e_option(const s_options_t* flags, const char* str, const s_list_t* paths,
   }
 }
 
-void v_option(const s_options_t* flags, const char* str, const s_list_t* paths,
-              const s_chcolor_t* colors, char* file_name, int count_lines) {
-  char* pfn = file_name;
+void v_option(const s_options_t *flags, const char *str, const s_list_t *paths,
+              const s_chcolor_t *colors, char *file_name, int count_lines) {
+  char *pfn = file_name;
   if ((paths->count == 1 && !flags->H) || flags->h) {
     n_option(flags, &count_lines, colors);
     printf("%s", str);
@@ -637,9 +657,9 @@ void v_option(const s_options_t* flags, const char* str, const s_list_t* paths,
   }
 }
 
-void o_option(const char* str, size_t* app, size_t index, int count_lines,
-              const s_chcolor_t* colors, const s_options_t* flags,
-              const s_list_t* paths, char* file_name) {
+void o_option(const char *str, size_t *app, size_t index, int count_lines,
+              const s_chcolor_t *colors, const s_options_t *flags,
+              const s_list_t *paths, char *file_name) {
   for (size_t i = 0; i != index; i += 2) {
     for (size_t j = i + 2; j != index; j += 2) {
       if (app[i] > app[j]) {
@@ -653,7 +673,7 @@ void o_option(const char* str, size_t* app, size_t index, int count_lines,
     }
   }
   for (size_t i = 0; i != index; i += 2) {
-    char* pfn = file_name;
+    char *pfn = file_name;
     if ((paths->count == 1 && !flags->H) || flags->h) {
       n_option(flags, &count_lines, colors);
       print_pattern(str, app, i, flags, colors);
@@ -678,8 +698,8 @@ void o_option(const char* str, size_t* app, size_t index, int count_lines,
   }
 }
 
-void print_pattern(const char* str, const size_t* app, size_t i,
-                   const s_options_t* flags, const s_chcolor_t* colors) {
+void print_pattern(const char *str, const size_t *app, size_t i,
+                   const s_options_t *flags, const s_chcolor_t *colors) {
   for (size_t j = 0; j != strlen(str); ++j) {
     if (j >= app[i] && j < app[i + 1]) {
       if (flags->color) {
@@ -692,9 +712,9 @@ void print_pattern(const char* str, const size_t* app, size_t i,
   putchar('\n');
 }
 
-void l_option(const s_options_t* flags, const s_chcolor_t* colors,
-              char* file_name) {
-  char* pfn = file_name;
+void l_option(const s_options_t *flags, const s_chcolor_t *colors,
+              char *file_name) {
+  char *pfn = file_name;
   if (!strcmp(file_name, "-")) {
     pfn = "(standard input)";
   }
@@ -705,12 +725,12 @@ void l_option(const s_options_t* flags, const s_chcolor_t* colors,
   }
 }
 
-// void print_lists(s_list_t* patterns, s_list_t* fpatterns, s_list_t* paths) {
-//   printf("Patterns:");
-//   print_list(patterns);
-//   printf("\nFpatterns:");
-//   print_list(fpatterns);
-//   printf("\nFiles:");
-//   print_list(paths);
-//   putchar('\n');
-// }
+void print_lists(s_list_t *patterns, s_list_t *fpatterns, s_list_t *paths) {
+  printf("Patterns:");
+  print_list(patterns);
+  printf("\nFpatterns:");
+  print_list(fpatterns);
+  printf("\nFiles:");
+  print_list(paths);
+  putchar('\n');
+}

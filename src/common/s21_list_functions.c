@@ -1,17 +1,17 @@
 #include "s21_list_functions.h"
 
-s_list_t* create_list() {
-  s_list_t* list = (s_list_t*)calloc(1, sizeof(s_list_t));
+s_list_t *create_list() {
+  s_list_t *list = (s_list_t *)calloc(1, sizeof(s_list_t));
   list->count = 0;
   list->head = NULL;
   list->tail = NULL;
   return list;
 }
 
-s_list_item_t* insert_list_item(s_list_t* list, int index, char* data) {
+s_list_item_t *insert_list_item(s_list_t *list, int index, char *data) {
   int size = strlen(data);
-  s_list_item_t* new_item = (s_list_item_t*)calloc(1, sizeof(s_list_item_t));
-  new_item->data = (char*)calloc(size + 1, sizeof(char));
+  s_list_item_t *new_item = (s_list_item_t *)calloc(1, sizeof(s_list_item_t));
+  new_item->data = (char *)calloc(size + 1, sizeof(char));
   strncpy(new_item->data, data, size);
   if (!list->count) {
     new_item->prev = NULL;
@@ -33,8 +33,8 @@ s_list_item_t* insert_list_item(s_list_t* list, int index, char* data) {
   return new_item;
 }
 
-s_list_item_t* get_list_item(s_list_t* list, int index) {
-  s_list_item_t* current = NULL;
+s_list_item_t *get_list_item(s_list_t *list, int index) {
+  s_list_item_t *current = NULL;
   int middle = list->count / 2;
   if (index >= middle) {
     current = list->tail;
@@ -48,38 +48,30 @@ s_list_item_t* get_list_item(s_list_t* list, int index) {
     }
   }
   if (current == NULL || index < 0 || index > list->count) {
-    printf(
-        "\033[3;31mError! The list_item with index = %d was not "
-        "found...\n\033[0m",
-        index);
+    printf("Error! The list_item with index = %d was not found...\n", index);
   }
   return current;
 }
 
-char* read_list_item(s_list_t* list, int index) {
-  s_list_item_t* current = get_list_item(list, index);
+char *read_list_item(s_list_t *list, int index) {
+  s_list_item_t *current = get_list_item(list, index);
   return current->data;
 }
 
-int search_list_item(s_list_t* list, char* data) {
+int search_list_item(s_list_t *list, char *data) {
   int index = 0;
-  s_list_item_t* current = list->head;
+  s_list_item_t *current = list->head;
   for (index = 1; strcmp(data, current->data) && index <= list->count;
        ++index) {
     if (current->next) {
       current = current->next;
     }
   }
-  return index <= list->count
-             ? index
-             : (printf("\033[3;31mError! The list_item with data = \"%s\" was "
-                       "not found...\n\033[0m",
-                       data),
-                -1);
+  return index <= list->count ? index : -1;
 }
 
-void print_list(s_list_t* list) {
-  s_list_item_t* current = list->head;
+void print_list(s_list_t *list) {
+  s_list_item_t *current = list->head;
   puts("\n\033[44m***Printing a list***\033[0m");
   if (!list->head) {
     puts("\033[32mThe list empty\033[0m");
@@ -91,8 +83,8 @@ void print_list(s_list_t* list) {
   }
 }
 
-void delete_list_item(s_list_t* list, int index) {
-  s_list_item_t* current = get_list_item(list, index);
+void delete_list_item(s_list_t *list, int index) {
+  s_list_item_t *current = get_list_item(list, index);
   if (current == NULL || index < 1 || index > list->count) {
     return;
   }
@@ -121,10 +113,10 @@ void delete_list_item(s_list_t* list, int index) {
   --list->count;
 }
 
-void delete_list(s_list_t* list) {
+void delete_list(s_list_t *list) {
   if (list->head) {
     do {
-      s_list_item_t* current = list->head;
+      s_list_item_t *current = list->head;
       list->head = list->head->next;
       free(current->data);
       current->data = NULL;

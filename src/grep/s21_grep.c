@@ -1,10 +1,10 @@
 #include "s21_grep.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   s_options_t flags = {0};
-  s_list_t* patterns = NULL;
-  s_list_t* fpatterns = NULL;
-  s_list_t* paths = NULL;
+  s_list_t *patterns = NULL;
+  s_list_t *fpatterns = NULL;
+  s_list_t *paths = NULL;
 
   patterns = create_list();
   fpatterns = create_list();

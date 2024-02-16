@@ -1,11 +1,6 @@
 #include "s21_cat_function.h"
 
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-void parsing_args(int argc, char** argv, s_options_t* flags) {
+void parsing_args(int argc, char **argv, s_options_t *flags) {
   for (int i = 1; i < argc; ++i) {
     if (strlen(argv[i]) > 0 && argv[i][0] == '-' && argv[i][1] != '-') {
       for (size_t j = 0; j < strlen(argv[i]); ++j) {
@@ -126,15 +121,15 @@ void parsing_args(int argc, char** argv, s_options_t* flags) {
   }
 }
 
-void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter) {
+void output(int argc, char **argv, s_options_t *flags, s_counters_t *counter) {
   if (argc == 1 || !strcmp(argv[1], "--")) {
     print_lines(flags, "-", counter);
   } else if (flags->version) {
-    printf("%s - program version 0.01 from 01/18/2024", PROGRAM_NAME);
+    printf("%s - program version 0.01 from 01/18/2024\n", PROGRAM_NAME);
     exit(EXIT_SUCCESS);
   } else if (flags->help) {
     s_options_t flags_0 = {0};
-    print_lines(&flags_0, "tests/help_s21_cat.txt", counter);
+    print_lines(&flags_0, "help_s21_cat.txt", counter);
     exit(EXIT_SUCCESS);
   } else if (argc > 1) {
     for (int i = 1; i != argc; ++i) {
@@ -148,22 +143,21 @@ void output(int argc, char** argv, s_options_t* flags, s_counters_t* counter) {
   }
 }
 
-void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
-  FILE* fp = NULL;
+void print_lines(s_options_t *flags, char *path, s_counters_t *counter) {
+  errno = 0;
+  FILE *fp = NULL;
   if (!strcmp(path, "-")) {
     fp = freopen("/dev/tty", "rt", stdin);
   } else {
     fp = fopen(path, "rt");
   }
-  DIR* dp = opendir(path);
+  DIR *dp = opendir(path);
   int character_counter = 0;
   counter->prev = '\0';
-
 #ifdef __APPLE__
   counter->lines = 0;
   counter->empty_lines = 0;
 #endif
-
   if (fp != NULL && dp == NULL) {
     int ch = fgetc(fp);
     ++character_counter;
@@ -179,7 +173,6 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
             printf("%6d\t", ++counter->lines);
           }
 #else
-
           printf("%6d\t", ++counter->lines);
 #endif
         }
@@ -227,11 +220,12 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
         ++character_counter;
       }
       if (ch == '\n') {
-        if (counter->prev != '\n') {
+        if (counter->prev != '\n' && counter->prev != '\0') {
           counter->empty_lines = 0;
         }
         if ((flags->n || flags->number) && character_counter == 1 &&
-            (!counter->empty_lines || counter->prev != '\n')) {
+            ((!counter->empty_lines || counter->prev != '\n') ||
+             (!flags->s && counter->prev == '\n'))) {
           printf("%6d\t", ++counter->lines);
         }
         if ((flags->s || flags->squeeze_blank) && counter->prev == '\n') {
@@ -251,7 +245,7 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
             ++character_counter;
           }
           continue;
-        } else if (ch != EOF) {
+        } else {
           if (flags->e || flags->E || flags->show_ends || flags->A ||
               flags->show_all) {
             putc('$', stdout);
@@ -267,12 +261,19 @@ void print_lines(s_options_t* flags, char* path, s_counters_t* counter) {
     fclose(fp);
   } else {
     if (dp != NULL) {
-      fprintf(stderr, "%s: %s: Is a directory", PROGRAM_NAME, path);
+      fprintf(stderr, "%s: %s: Is a directory\n", PROGRAM_NAME, path);
       closedir(dp);
       exit(EXIT_FAILURE);
     } else {
-      fprintf(stderr, "%s: %s: No such file or directory", PROGRAM_NAME, path);
+      print_error(PROGRAM_NAME, path, "");
       exit(EXIT_FAILURE);
     }
   }
+}
+
+void print_error(const char *program_name, const char *file_name,
+                 const char *message) {
+  char error_message[BUFFER_SIZE] = {'\0'};
+  sprintf(error_message, "%s: %s%s", program_name, file_name, message);
+  perror(error_message);
 }
